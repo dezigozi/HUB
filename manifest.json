@@ -1,0 +1,17 @@
+{
+  "name": "My Hub",
+  "short_name": "My Hub",
+  "description": "アプリランチャー",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#06b6d4",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
