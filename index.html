@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Hub</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <span class="logo">My Hub</span>
+        </div>
+        <nav class="sidebar-nav" id="sidebarNav"></nav>
+        <div class="sidebar-footer">
+            <button class="nav-btn" onclick="openModal()">⚙️ 設定</button>
+        </div>
+    </aside>
+
+    <main class="main">
+        <header class="header">
+            <h1 id="pageTitle">すべて <span id="appCount">(0)</span></h1>
+            <div class="header-actions">
+                <input type="text" class="search-input" placeholder="検索..." id="searchInput" oninput="renderContent()">
+                <button class="add-btn" onclick="openModal()">＋ 追加</button>
+            </div>
+        </header>
+        <div class="content" id="content">
+            <p class="loading">読み込み中...</p>
+        </div>
+    </main>
+
+    <div class="modal-overlay" id="modal" onclick="closeModal(event)">
+        <div class="modal-box" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <div class="tabs">
+                    <button class="tab active" data-tab="app">アプリ追加</button>
+                    <button class="tab" data-tab="genre">ジャンル管理</button>
+                </div>
+                <button class="close-btn" onclick="closeModal()">✕</button>
+            </div>
+            <div class="modal-body">
+                <form id="appForm" class="tab-content active">
+                    <label>URL<input type="url" id="appUrl" placeholder="https://..."></label>
+                    <label>タイトル *<input type="text" id="appTitle" required></label>
+                    <label>説明<textarea id="appDesc" rows="2"></textarea></label>
+                    <label>ジャンル<select id="appGenre"></select></label>
+                    <label>アイコンURL<input type="url" id="appIcon"></label>
+                    <label>HTMLコード<textarea id="appHtml" rows="3"></textarea></label>
+                    <button type="submit" class="submit-btn">保存</button>
+                </form>
+                <div id="genreForm" class="tab-content">
+                    <div class="add-row">
+                        <input type="text" id="genreIcon" value="📁" class="icon-input">
+                        <input type="text" id="genreName" placeholder="ジャンル名">
+                        <button onclick="saveGenre()">追加</button>
+                    </div>
+                    <div id="genreList"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+
+</html>

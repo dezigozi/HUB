@@ -1,0 +1,498 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: linear-gradient(135deg, #0f172a, #1e293b);
+    color: #e2e8f0;
+    min-height: 100vh;
+}
+
+/* Sidebar */
+.sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 220px;
+    height: 100%;
+    background: #0f172a;
+    border-right: 1px solid #334155;
+    display: flex;
+    flex-direction: column;
+    z-index: 50;
+}
+
+.sidebar-header {
+    padding: 20px;
+    border-bottom: 1px solid #334155;
+}
+
+.logo {
+    font-size: 20px;
+    font-weight: 700;
+    background: linear-gradient(135deg, #22d3ee, #a855f7);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.sidebar-nav {
+    flex: 1;
+    padding: 10px;
+    overflow-y: auto;
+}
+
+.nav-btn {
+    width: 100%;
+    padding: 12px;
+    background: transparent;
+    border: none;
+    border-radius: 8px;
+    color: #94a3b8;
+    text-align: left;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.nav-btn:hover {
+    background: #1e293b;
+}
+
+.nav-btn.active {
+    background: linear-gradient(135deg, rgba(6, 182, 212, 0.2), rgba(168, 85, 247, 0.2));
+    color: #22d3ee;
+}
+
+.sidebar-footer {
+    padding: 10px;
+    border-top: 1px solid #334155;
+}
+
+/* Main */
+.main {
+    margin-left: 220px;
+    min-height: 100vh;
+}
+
+.header {
+    position: sticky;
+    top: 0;
+    background: rgba(15, 23, 42, 0.95);
+    backdrop-filter: blur(10px);
+    padding: 16px 24px;
+    border-bottom: 1px solid #334155;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 40;
+}
+
+.header h1 {
+    font-size: 22px;
+    background: linear-gradient(135deg, #06b6d4, #8b5cf6);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.header h1 span {
+    color: #64748b;
+}
+
+.header-actions {
+    display: flex;
+    gap: 12px;
+}
+
+.search-input {
+    padding: 10px 16px;
+    background: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 10px;
+    color: #e2e8f0;
+    width: 200px;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: #06b6d4;
+}
+
+.add-btn {
+    padding: 10px 20px;
+    background: linear-gradient(135deg, #06b6d4, #a855f7);
+    border: none;
+    border-radius: 10px;
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.add-btn:hover {
+    opacity: 0.9;
+}
+
+/* Content */
+.content {
+    padding: 24px;
+}
+
+.loading {
+    text-align: center;
+    padding: 60px;
+    color: #64748b;
+}
+
+/* Genre Section */
+.genre-section {
+    margin-bottom: 32px;
+}
+
+.genre-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    margin-bottom: 8px;
+    background: rgba(30, 41, 59, 0.5);
+    border-radius: 10px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.genre-title:hover {
+    background: rgba(30, 41, 59, 0.8);
+}
+
+.genre-title .icon {
+    font-size: 20px;
+}
+
+.genre-title .count {
+    color: #64748b;
+    font-size: 14px;
+    margin-left: auto;
+}
+
+.genre-title .arrow {
+    color: #64748b;
+    font-size: 12px;
+    margin-left: 8px;
+}
+
+/* App Grid */
+.app-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    gap: 16px;
+    padding: 8px 0;
+}
+
+.app-grid.collapsed {
+    display: none;
+}
+
+/* App Card */
+.app-card {
+    background: linear-gradient(135deg, #1e293b, #0f172a);
+    border: 1px solid #334155;
+    border-radius: 12px;
+    padding: 16px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+}
+
+.app-card:hover {
+    border-color: #06b6d4;
+    transform: translateY(-2px);
+}
+
+.app-icon {
+    width: 48px;
+    height: 48px;
+    margin: 0 auto 10px;
+    background: #334155;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    overflow: hidden;
+}
+
+.app-icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.app-title {
+    font-size: 13px;
+    color: #e2e8f0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.app-actions {
+    position: absolute;
+    bottom: 8px;
+    right: 8px;
+    display: none;
+    gap: 4px;
+}
+
+.app-card.show-actions .app-actions {
+    display: flex;
+}
+
+.app-actions button {
+    padding: 4px 8px;
+    background: #0f172a;
+    border: 1px solid #334155;
+    border-radius: 6px;
+    color: #94a3b8;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+.app-actions button:hover {
+    color: #f87171;
+}
+
+/* Modal */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.7);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 100;
+}
+
+.modal-overlay.active {
+    display: flex;
+}
+
+.modal-box {
+    background: #0f172a;
+    border: 1px solid #334155;
+    border-radius: 16px;
+    width: 100%;
+    max-width: 440px;
+    margin: 20px;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    padding: 16px;
+    border-bottom: 1px solid #1e293b;
+}
+
+.tabs {
+    display: flex;
+    gap: 8px;
+}
+
+.tab {
+    padding: 8px 16px;
+    background: transparent;
+    border: none;
+    border-radius: 8px;
+    color: #94a3b8;
+    cursor: pointer;
+}
+
+.tab.active {
+    background: rgba(6, 182, 212, 0.2);
+    color: #22d3ee;
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    color: #94a3b8;
+    cursor: pointer;
+    font-size: 18px;
+}
+
+.modal-body {
+    padding: 20px;
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+/* Forms */
+label {
+    display: block;
+    margin-bottom: 16px;
+    font-size: 14px;
+    color: #94a3b8;
+}
+
+label input,
+label textarea,
+label select {
+    display: block;
+    width: 100%;
+    margin-top: 6px;
+    padding: 12px;
+    background: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 10px;
+    color: #e2e8f0;
+    font-family: inherit;
+}
+
+label input:focus,
+label textarea:focus,
+label select:focus {
+    outline: none;
+    border-color: #06b6d4;
+}
+
+label textarea {
+    resize: none;
+}
+
+.submit-btn {
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(135deg, #06b6d4, #a855f7);
+    border: none;
+    border-radius: 10px;
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+/* Genre Form */
+.add-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.icon-input {
+    width: 50px !important;
+    text-align: center;
+    font-size: 18px;
+}
+
+.add-row input {
+    flex: 1;
+}
+
+.add-row button {
+    padding: 12px 16px;
+    background: #06b6d4;
+    border: none;
+    border-radius: 10px;
+    color: white;
+    cursor: pointer;
+}
+
+#genreList {
+    max-height: 250px;
+    overflow-y: auto;
+}
+
+.genre-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px;
+    background: #1e293b;
+    border-radius: 10px;
+    margin-bottom: 8px;
+    gap: 8px;
+}
+
+.genre-item .genre-display {
+    flex: 1;
+}
+
+.genre-item .genre-actions {
+    display: flex;
+    gap: 4px;
+}
+
+.genre-item button {
+    background: none;
+    border: none;
+    color: #94a3b8;
+    cursor: pointer;
+    padding: 4px 8px;
+}
+
+.genre-item button:hover {
+    color: #22d3ee;
+}
+
+.genre-item input {
+    padding: 8px;
+    background: #0f172a;
+    border: 1px solid #334155;
+    border-radius: 6px;
+    color: #e2e8f0;
+}
+
+.genre-item button:hover {
+    color: #f87171;
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+    .sidebar {
+        width: 60px;
+    }
+
+    .sidebar .logo {
+        display: none;
+    }
+
+    .sidebar-nav .nav-btn {
+        padding: 12px;
+        justify-content: center;
+    }
+
+    .sidebar-nav .nav-btn span:not(:first-child) {
+        display: none;
+    }
+
+    .main {
+        margin-left: 60px;
+    }
+
+    .header {
+        padding: 12px;
+    }
+
+    .header h1 {
+        font-size: 16px;
+    }
+
+    .search-input {
+        width: 100px;
+    }
+
+    .add-btn {
+        padding: 10px;
+    }
+
+    .add-btn span:last-child {
+        display: none;
+    }
+}
