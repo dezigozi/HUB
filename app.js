@@ -317,15 +317,16 @@ function editApp(id) {
     if (!app) return;
 
     editingAppId = id;
+    document.querySelector('.tabs .tab[data-tab="app"]').textContent = 'アプリ編集';
+    openModal();
+
+    // Set form values AFTER openModal (which re-renders the genre select)
     document.getElementById('appUrl').value = app.url || '';
     document.getElementById('appTitle').value = app.title || '';
     document.getElementById('appDesc').value = app.description || '';
     document.getElementById('appGenre').value = app.genre_id || '';
     document.getElementById('appIcon').value = app.icon_url || '';
     document.getElementById('appHtml').value = app.html_code || '';
-
-    document.querySelector('.tabs .tab[data-tab="app"]').textContent = 'アプリ編集';
-    openModal();
 }
 
 // Delete app
