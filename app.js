@@ -302,11 +302,15 @@ function selectIcon(path) {
     });
 }
 
-// Render genre select
+// Render genre select（再描画時に現在の選択値を保持する：裏更新でジャンルがリセットされるバグ対策）
 function renderGenreSelect() {
     const select = document.getElementById('appGenre');
     if (!select) return;
+    const prev = select.value;
     select.innerHTML = genres.map(g => `<option value="${g.id}">${g.icon} ${g.name}</option>`).join('');
+    if (prev && [...select.options].some(o => o.value === prev)) {
+        select.value = prev;
+    }
 }
 
 // Render genre list
@@ -527,6 +531,7 @@ function closeModal(e) {
     document.getElementById('appUrl').value = '';
     document.getElementById('appTitle').value = '';
     document.getElementById('appDesc').value = '';
+    document.getElementById('appGenre').value = '';
     document.getElementById('appIcon').value = '';
     document.getElementById('appHtml').value = '';
     document.querySelector('.tabs .tab[data-tab="app"]').textContent = 'アプリ追加';
