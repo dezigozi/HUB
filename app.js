@@ -1,6 +1,11 @@
 // GAS Web App URL
 const GAS_URL = 'https://script.google.com/macros/s/AKfycbxdrr1vZuTc4JaDco9SnPw2ZKFlF5AgXnJOABEOlLzyESqvhB2ls9Gg8Vy_de6z_AVqiQ/exec';
 
+// SWR キャッシュ（前回データを即描画 → 裏で更新）
+const CACHE_KEY = 'myhub_data_v1';
+const FETCH_TIMEOUT_MS = 15000;
+const FETCH_MAX_RETRIES = 3;
+
 // Icon set (24 patterns) — icon_url に "icons/xxx.svg" を保存
 const ICON_SET = [
     { id: 'work', label: '仕事' },
@@ -40,29 +45,109 @@ let expandedGenres = {}; // ジャンルの開閉状態
 
 // Init
 document.addEventListener('DOMContentLoaded', () => {
-    loadData();
+    // 1. キャッシュがあれば即描画（体感 0ms）
+    const cached = readCache();
+    if (cached) {
+        apps = cached.apps || [];
+        genres = cached.genres || [];
+        render();
+    }
+    // 2. 裏で最新データ取得 → 差分あれば再描画
+    refreshFromServer();
     setupTabs();
     setupAppForm();
     renderIconGallery();
 });
 
-// Load data from GAS
-async function loadData() {
+// localStorage SWR キャッシュ
+function readCache() {
     try {
-        const [appsRes, genresRes] = await Promise.all([
-            fetch(GAS_URL + '?action=getApps').then(r => r.json()),
-            fetch(GAS_URL + '?action=getGenres').then(r => r.json())
-        ]);
-
-        apps = appsRes.data || [];
-        genres = genresRes.data || [];
-
-        console.log('Loaded:', { apps, genres });
+        const raw = localStorage.getItem(CACHE_KEY);
+        return raw ? JSON.parse(raw) : null;
     } catch (e) {
-        console.error('Load error:', e);
+        return null;
     }
+}
 
-    render();
+function writeCache(data) {
+    try {
+        localStorage.setItem(CACHE_KEY, JSON.stringify({
+            apps: data.apps,
+            genres: data.genres,
+            cached_at: new Date().toISOString()
+        }));
+    } catch (e) {
+        // QuotaExceeded 等は無視（キャッシュは best-effort）
+    }
+}
+
+// fetch with timeout & exponential backoff retry
+async function fetchJsonWithRetry(url, opts = {}, maxRetries = FETCH_MAX_RETRIES) {
+    let lastErr;
+    for (let attempt = 0; attempt < maxRetries; attempt++) {
+        const ctrl = new AbortController();
+        const timer = setTimeout(() => ctrl.abort(), FETCH_TIMEOUT_MS);
+        try {
+            const res = await fetch(url, { ...opts, signal: ctrl.signal });
+            clearTimeout(timer);
+            const text = await res.text();
+            // GAS は HTTP 500 でも HTML を返すため content-type ではなく中身で判定
+            if (text.startsWith('<')) throw new Error(`GAS HTML error (HTTP ${res.status})`);
+            return JSON.parse(text);
+        } catch (e) {
+            clearTimeout(timer);
+            lastErr = e;
+            if (attempt < maxRetries - 1) {
+                await new Promise(r => setTimeout(r, 500 * Math.pow(2, attempt)));
+            }
+        }
+    }
+    throw lastErr;
+}
+
+// データ取得：getAll 統合エンドポイントを優先、未対応なら個別fetchへfallback
+async function fetchAllData() {
+    try {
+        const res = await fetchJsonWithRetry(GAS_URL + '?action=getAll');
+        if (res.success && Array.isArray(res.apps) && Array.isArray(res.genres)) {
+            return { apps: res.apps, genres: res.genres };
+        }
+        // success=false かつ Unknown action ならフォールバック、そうでなければエラー
+        if (res.error && !/Unknown action/i.test(res.error)) {
+            throw new Error(res.error);
+        }
+    } catch (e) {
+        console.warn('getAll failed, fallback to getApps + getGenres:', e.message);
+    }
+    // Fallback: 旧 Code.gs 用に個別取得（GAS 再デプロイ前でも動作）
+    const [appsRes, genresRes] = await Promise.all([
+        fetchJsonWithRetry(GAS_URL + '?action=getApps'),
+        fetchJsonWithRetry(GAS_URL + '?action=getGenres')
+    ]);
+    return { apps: appsRes.data || [], genres: genresRes.data || [] };
+}
+
+async function refreshFromServer() {
+    try {
+        const fresh = await fetchAllData();
+        const changed = JSON.stringify({ apps, genres }) !== JSON.stringify(fresh);
+        apps = fresh.apps;
+        genres = fresh.genres;
+        writeCache(fresh);
+        if (changed || !readCache()) render();
+    } catch (e) {
+        console.error('Refresh failed (using cache):', e);
+        // キャッシュも無く全失敗の場合のみエラー表示
+        if (!apps.length && !genres.length) {
+            const content = document.getElementById('content');
+            if (content) content.innerHTML = '<p class="loading">読み込みに失敗しました。接続を確認して再読み込みしてください。</p>';
+        }
+    }
+}
+
+// 後方互換用エイリアス（既存コードから呼ばれる）
+async function loadData() {
+    return refreshFromServer();
 }
 
 // Render all

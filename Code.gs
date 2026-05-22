@@ -16,20 +16,64 @@ const GENRES_SHEET = 'ジャンルマスタ';
 const COL = { ID: 0, GENRE_ID: 1, TITLE: 2, URL: 3, ICON: 4, DESC: 5, ORDER: 6, CREATED: 7, UPDATED: 8, HTML: 9 };
 const GCOL = { ID: 0, NAME: 1, SLUG: 2, ICON: 3, ORDER: 4, CREATED: 5 };
 
+// Cache（読み取り結果を 60 秒間 ScriptCache に保持し Sheets API 呼び出しを回避）
+const CACHE_TTL_SEC = 60;
+const CACHE_KEY_ALL = 'myhub_all_v1';
+
+function readCacheAll_() {
+  const cached = CacheService.getScriptCache().get(CACHE_KEY_ALL);
+  return cached ? JSON.parse(cached) : null;
+}
+
+function writeCacheAll_(payload) {
+  // CacheService の 1 エントリ上限は 100KB。超える場合はキャッシュをスキップ。
+  const json = JSON.stringify(payload);
+  if (json.length < 100000) {
+    CacheService.getScriptCache().put(CACHE_KEY_ALL, json, CACHE_TTL_SEC);
+  }
+}
+
+function invalidateCache_() {
+  CacheService.getScriptCache().remove(CACHE_KEY_ALL);
+}
+
 function doGet(e) {
-  const action = e.parameter.action || 'getApps';
+  const action = e.parameter.action || 'getAll';
   let result;
-  
+
   try {
-    if (action === 'getApps') result = getApps();
+    if (action === 'getAll') result = getAll();
+    else if (action === 'getApps') result = getApps();
     else if (action === 'getGenres') result = getGenres();
     else result = { success: false, error: 'Unknown action' };
   } catch (err) {
     result = { success: false, error: err.toString() };
   }
-  
+
   return ContentService.createTextOutput(JSON.stringify(result))
     .setMimeType(ContentService.MimeType.JSON);
+}
+
+// === 統合エンドポイント（apps + genres を 1リクエストで返す + キャッシュ） ===
+function getAll() {
+  const cached = readCacheAll_();
+  if (cached) return cached;
+
+  const appsRes = getApps();
+  const genresRes = getGenres();
+
+  const payload = {
+    success: appsRes.success && genresRes.success,
+    apps: appsRes.data || [],
+    genres: genresRes.data || [],
+    cached_at: new Date().toISOString()
+  };
+  if (!payload.success) {
+    payload.error = appsRes.error || genresRes.error;
+  } else {
+    writeCacheAll_(payload);
+  }
+  return payload;
 }
 
 function doPost(e) {
@@ -111,7 +155,8 @@ function createApp(app) {
     now,
     app.html_code || ''
   ]);
-  
+
+  invalidateCache_();
   return { success: true, data: { id: newId } };
 }
 
@@ -132,7 +177,8 @@ function updateApp(id, app) {
       sheet.getRange(row, COL.DESC + 1).setValue(app.description || '');
       sheet.getRange(row, COL.HTML + 1).setValue(app.html_code || '');
       sheet.getRange(row, COL.UPDATED + 1).setValue(now);
-      
+
+      invalidateCache_();
       return { success: true };
     }
   }
@@ -147,6 +193,7 @@ function deleteApp(id) {
   for (let i = 1; i < data.length; i++) {
     if (data[i][COL.ID] == id) {
       sheet.deleteRow(i + 1);
+      invalidateCache_();
       return { success: true };
     }
   }
@@ -210,7 +257,8 @@ function createGenre(genre) {
   const slug = 'genre-' + newId;
   
   sheet.appendRow([newId, genre.name, slug, genre.icon || '📁', maxOrder + 1, new Date()]);
-  
+
+  invalidateCache_();
   return { success: true, data: { id: newId } };
 }
 
@@ -226,6 +274,7 @@ function updateGenre(id, genre) {
       const row = i + 1;
       sheet.getRange(row, GCOL.NAME + 1).setValue(genre.name);
       sheet.getRange(row, GCOL.ICON + 1).setValue(genre.icon || '📁');
+      invalidateCache_();
       return { success: true };
     }
   }
@@ -242,6 +291,7 @@ function deleteGenre(id) {
   for (let i = 1; i < data.length; i++) {
     if (data[i][GCOL.ID] == id) {
       sheet.deleteRow(i + 1);
+      invalidateCache_();
       return { success: true };
     }
   }
