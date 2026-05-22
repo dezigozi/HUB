@@ -38,7 +38,9 @@ function invalidateCache_() {
 }
 
 function doGet(e) {
-  const action = e.parameter.action || 'getAll';
+  // e はHTTPリクエスト経由でのみ渡される。Editor「実行」ボタンからの直接呼び出しに備え防御
+  const params = (e && e.parameter) || {};
+  const action = params.action || 'getAll';
   let result;
 
   try {
@@ -78,8 +80,9 @@ function getAll() {
 
 function doPost(e) {
   let result;
-  
+
   try {
+    if (!e || !e.postData) throw new Error('doPost requires HTTP POST request (cannot be run from Editor)');
     const data = JSON.parse(e.postData.contents);
     const action = data.action;
     
