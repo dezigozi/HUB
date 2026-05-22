@@ -254,29 +254,10 @@ body::after {
     white-space: nowrap;
 }
 
-.app-actions {
+/* 編集=右上 / 削除=左上 に物理的に分離して誤タップを防止 */
+.app-action {
     position: absolute;
     top: 6px;
-    right: 6px;
-    display: flex;
-    gap: 2px;
-    opacity: 0.25;
-    transition: opacity 0.15s;
-}
-
-.app-card:hover .app-actions,
-.app-card:focus-within .app-actions {
-    opacity: 1;
-}
-
-/* タッチデバイス（hover非対応）では薄めの常時表示 */
-@media (hover: none) {
-    .app-actions {
-        opacity: 0.55;
-    }
-}
-
-.app-actions button {
     width: 26px;
     height: 26px;
     padding: 0;
@@ -290,12 +271,32 @@ body::after {
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: background 0.15s, border-color 0.15s;
+    opacity: 0.25;
+    transition: opacity 0.15s, background 0.15s, border-color 0.15s;
 }
 
-.app-actions button:hover {
+.app-action-edit { right: 6px; }
+.app-action-delete { left: 6px; }
+
+.app-card:hover .app-action,
+.app-card:focus-within .app-action {
+    opacity: 1;
+}
+
+/* タッチデバイス（hover非対応）では薄めの常時表示 */
+@media (hover: none) {
+    .app-action {
+        opacity: 0.55;
+    }
+}
+
+.app-action:hover {
     background: #1e293b;
     border-color: #06b6d4;
+}
+
+.app-action-delete:hover {
+    border-color: #f87171;
 }
 
 /* Modal */

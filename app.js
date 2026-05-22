@@ -264,14 +264,12 @@ function renderAppCard(app) {
     const hasHtml = app.html_code && !app.url;
     return `
         <div class="app-card" data-app-id="${app.id}" onclick="openApp(${app.id})">
+            <button class="app-action app-action-delete" title="削除" onclick="event.stopPropagation(); deleteApp(${app.id})">🗑️</button>
             <div class="app-icon">
                 ${app.icon_url ? `<img src="${app.icon_url}" onerror="this.parentElement.innerHTML='📦'">` : (hasHtml ? '📄' : '📦')}
             </div>
             <div class="app-title">${app.title || '無題'}</div>
-            <div class="app-actions">
-                <button title="編集" onclick="event.stopPropagation(); editApp(${app.id})">✏️</button>
-                <button title="削除" onclick="event.stopPropagation(); deleteApp(${app.id})">🗑️</button>
-            </div>
+            <button class="app-action app-action-edit" title="編集" onclick="event.stopPropagation(); editApp(${app.id})">✏️</button>
         </div>
     `;
 }
