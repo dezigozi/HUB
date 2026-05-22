@@ -259,99 +259,22 @@ function toggleGenre(genreId) {
     renderContent();
 }
 
-// Long press state
-let longPressTimer = null;
-let isLongPress = false;
-
 // Render app card
 function renderAppCard(app) {
     const hasHtml = app.html_code && !app.url;
     return `
-        <div class="app-card" 
-             data-app-id="${app.id}"
-             onmousedown="startLongPress(event, ${app.id})"
-             onmouseup="endLongPress(event, ${app.id})"
-             onmouseleave="cancelLongPress()"
-             ontouchstart="startLongPress(event, ${app.id})"
-             ontouchend="endLongPress(event, ${app.id})"
-             ontouchcancel="cancelLongPress()">
+        <div class="app-card" data-app-id="${app.id}" onclick="openApp(${app.id})">
             <div class="app-icon">
                 ${app.icon_url ? `<img src="${app.icon_url}" onerror="this.parentElement.innerHTML='📦'">` : (hasHtml ? '📄' : '📦')}
             </div>
             <div class="app-title">${app.title || '無題'}</div>
             <div class="app-actions">
-                <button onclick="event.stopPropagation(); editApp(${app.id})">✏️</button>
-                <button onclick="event.stopPropagation(); deleteApp(${app.id})">🗑️</button>
+                <button title="編集" onclick="event.stopPropagation(); editApp(${app.id})">✏️</button>
+                <button title="削除" onclick="event.stopPropagation(); deleteApp(${app.id})">🗑️</button>
             </div>
         </div>
     `;
 }
-
-// Start long press timer (500ms)
-function startLongPress(event, appId) {
-    // Don't trigger on action buttons
-    if (event.target.closest('.app-actions')) return;
-
-    isLongPress = false;
-    const card = event.currentTarget;
-
-    longPressTimer = setTimeout(() => {
-        isLongPress = true;
-
-        // Hide all other action buttons first
-        document.querySelectorAll('.app-card.show-actions').forEach(c => {
-            c.classList.remove('show-actions');
-        });
-
-        // Show actions for this card
-        card.classList.add('show-actions');
-
-        // Vibrate on mobile if supported
-        if (navigator.vibrate) {
-            navigator.vibrate(50);
-        }
-    }, 500);
-}
-
-// End long press - open app if it was a short click
-function endLongPress(event, appId) {
-    // Don't trigger on action buttons
-    if (event.target.closest('.app-actions')) return;
-
-    clearTimeout(longPressTimer);
-
-    const card = event.currentTarget;
-
-    // If it was a long press, don't open the app
-    if (isLongPress) {
-        isLongPress = false;
-        return;
-    }
-
-    // If actions are showing, hide them
-    if (card.classList.contains('show-actions')) {
-        card.classList.remove('show-actions');
-        return;
-    }
-
-    // Short click - open the app
-    openApp(appId);
-}
-
-// Cancel long press
-function cancelLongPress() {
-    clearTimeout(longPressTimer);
-    isLongPress = false;
-}
-
-// Hide actions when clicking outside
-document.addEventListener('click', (event) => {
-    if (!event.target.closest('.app-card')) {
-        document.querySelectorAll('.app-card.show-actions').forEach(card => {
-            card.classList.remove('show-actions');
-        });
-    }
-});
 
 // Render icon gallery
 function renderIconGallery() {
