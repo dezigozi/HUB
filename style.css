@@ -394,6 +394,65 @@ label textarea {
     cursor: pointer;
 }
 
+/* Icon Picker (Gallery) */
+.icon-picker {
+    margin-bottom: 16px;
+}
+
+.icon-picker-label {
+    font-size: 14px;
+    color: #94a3b8;
+    margin-bottom: 8px;
+}
+
+.icon-gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(48px, 1fr));
+    gap: 8px;
+    max-height: 200px;
+    overflow-y: auto;
+    padding: 10px;
+    background: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 10px;
+}
+
+.icon-cell {
+    aspect-ratio: 1;
+    background: #0f172a;
+    border: 2px solid transparent;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.15s;
+    color: #94a3b8;
+    font-size: 18px;
+}
+
+.icon-cell:hover {
+    border-color: #475569;
+    background: #1e293b;
+}
+
+.icon-cell.selected {
+    border-color: #06b6d4;
+    background: rgba(6, 182, 212, 0.15);
+}
+
+.icon-cell img {
+    width: 70%;
+    height: 70%;
+    object-fit: contain;
+    pointer-events: none;
+}
+
+.icon-cell-none {
+    color: #64748b;
+    font-weight: bold;
+}
+
 /* Genre Form */
 .add-row {
     display: flex;

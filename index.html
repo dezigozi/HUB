@@ -57,7 +57,11 @@
                     <label>タイトル *<input type="text" id="appTitle" required></label>
                     <label>説明<textarea id="appDesc" rows="2"></textarea></label>
                     <label>ジャンル<select id="appGenre"></select></label>
-                    <label>アイコンURL<input type="url" id="appIcon"></label>
+                    <div class="icon-picker">
+                        <div class="icon-picker-label">アイコン</div>
+                        <div class="icon-gallery" id="iconGallery"></div>
+                        <input type="hidden" id="appIcon">
+                    </div>
                     <label>HTMLコード<textarea id="appHtml" rows="3"></textarea></label>
                     <button type="submit" class="submit-btn">保存</button>
                 </form>

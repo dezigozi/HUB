@@ -1,6 +1,36 @@
 // GAS Web App URL
 const GAS_URL = 'https://script.google.com/macros/s/AKfycbxdrr1vZuTc4JaDco9SnPw2ZKFlF5AgXnJOABEOlLzyESqvhB2ls9Gg8Vy_de6z_AVqiQ/exec';
 
+// Icon set (24 patterns) — icon_url に "icons/xxx.svg" を保存
+const ICON_SET = [
+    { id: 'work', label: '仕事' },
+    { id: 'mail', label: 'メール' },
+    { id: 'memo', label: 'メモ' },
+    { id: 'document', label: '文書' },
+    { id: 'calendar', label: 'カレンダー' },
+    { id: 'chart', label: 'グラフ' },
+    { id: 'chat', label: 'チャット' },
+    { id: 'money', label: 'お金' },
+    { id: 'shopping', label: 'ショッピング' },
+    { id: 'tool', label: 'ツール' },
+    { id: 'study', label: '学習' },
+    { id: 'book', label: '読書' },
+    { id: 'media', label: 'メディア' },
+    { id: 'music', label: '音楽' },
+    { id: 'video', label: '動画' },
+    { id: 'photo', label: '写真' },
+    { id: 'game', label: 'ゲーム' },
+    { id: 'home', label: 'ホーム' },
+    { id: 'cloud', label: 'クラウド' },
+    { id: 'code', label: '開発' },
+    { id: 'folder', label: 'フォルダ' },
+    { id: 'globe', label: 'ウェブ' },
+    { id: 'star', label: 'お気に入り' },
+    { id: 'settings', label: '設定' }
+];
+
+const iconPath = id => `icons/${id}.svg`;
+
 // State
 let apps = [];
 let genres = [];
@@ -13,6 +43,7 @@ document.addEventListener('DOMContentLoaded', () => {
     loadData();
     setupTabs();
     setupAppForm();
+    renderIconGallery();
 });
 
 // Load data from GAS
@@ -237,6 +268,34 @@ document.addEventListener('click', (event) => {
     }
 });
 
+// Render icon gallery
+function renderIconGallery() {
+    const gallery = document.getElementById('iconGallery');
+    if (!gallery) return;
+
+    const current = document.getElementById('appIcon').value;
+    let html = `<div class="icon-cell icon-cell-none ${!current ? 'selected' : ''}" data-icon="" title="なし">×</div>`;
+    html += ICON_SET.map(ic => {
+        const path = iconPath(ic.id);
+        const sel = current === path ? 'selected' : '';
+        return `<div class="icon-cell ${sel}" data-icon="${path}" title="${ic.label}"><img src="${path}" alt="${ic.label}"></div>`;
+    }).join('');
+
+    gallery.innerHTML = html;
+
+    gallery.querySelectorAll('.icon-cell').forEach(cell => {
+        cell.addEventListener('click', () => selectIcon(cell.dataset.icon));
+    });
+}
+
+// Select icon
+function selectIcon(path) {
+    document.getElementById('appIcon').value = path || '';
+    document.querySelectorAll('#iconGallery .icon-cell').forEach(c => {
+        c.classList.toggle('selected', c.dataset.icon === (path || ''));
+    });
+}
+
 // Render genre select
 function renderGenreSelect() {
     const select = document.getElementById('appGenre');
@@ -327,6 +386,7 @@ function editApp(id) {
     document.getElementById('appGenre').value = app.genre_id || '';
     document.getElementById('appIcon').value = app.icon_url || '';
     document.getElementById('appHtml').value = app.html_code || '';
+    renderIconGallery();
 }
 
 // Delete app
@@ -448,6 +508,7 @@ function openModal() {
     document.getElementById('modal').classList.add('active');
     renderGenreList();
     renderGenreSelect();
+    renderIconGallery();
 }
 
 function closeModal(e) {
@@ -463,6 +524,7 @@ function closeModal(e) {
     document.getElementById('appIcon').value = '';
     document.getElementById('appHtml').value = '';
     document.querySelector('.tabs .tab[data-tab="app"]').textContent = 'アプリ追加';
+    renderIconGallery();
 }
 
 // Tab switching
