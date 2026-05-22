@@ -260,6 +260,20 @@ body::after {
     right: 6px;
     display: flex;
     gap: 2px;
+    opacity: 0.25;
+    transition: opacity 0.15s;
+}
+
+.app-card:hover .app-actions,
+.app-card:focus-within .app-actions {
+    opacity: 1;
+}
+
+/* タッチデバイス（hover非対応）では薄めの常時表示 */
+@media (hover: none) {
+    .app-actions {
+        opacity: 0.55;
+    }
 }
 
 .app-actions button {
