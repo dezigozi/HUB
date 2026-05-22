@@ -302,6 +302,9 @@ body::after {
     width: 100%;
     max-width: 440px;
     margin: 20px;
+    max-height: calc(100vh - 40px);
+    display: flex;
+    flex-direction: column;
 }
 
 .modal-header {
@@ -309,6 +312,7 @@ body::after {
     justify-content: space-between;
     padding: 16px;
     border-bottom: 1px solid #1e293b;
+    flex-shrink: 0;
 }
 
 .tabs {
@@ -340,6 +344,9 @@ body::after {
 
 .modal-body {
     padding: 20px;
+    overflow-y: auto;
+    flex: 1 1 auto;
+    min-height: 0;
 }
 
 .tab-content {
